@@ -20,8 +20,8 @@
 
 #include "ListenerHelper.h"
 #include "MyProtocolHandler.h"
+//#include "TextFun.h"
 #include <iostream>
-#include <typeinfo>
 #include <random>
 
 #include <com/sun/star/awt/MessageBoxButtons.hpp>
@@ -34,21 +34,9 @@
 #include <com/sun/star/system/SystemShellExecuteFlags.hpp>
 #include <com/sun/star/system/XSystemShellExecute.hpp>
 #include <cppuhelper/supportsservice.hxx>
-#include <com/sun/star/frame/Desktop.hpp>
 #include <com/sun/star/frame/XComponentLoader.hpp>
 #include <com/sun/star/text/XTextDocument.hpp>
-#include <com/sun/star/xml/sax/Writer.hpp>
-#include <com/sun/star/document/DocumentProperties.hpp>
 #include <com/sun/star/beans/XPropertySet.hpp>
-#include <com/sun/star/frame/XLayoutManager.hpp>
-#include <com/sun/star/frame/XToolbarController.hpp>
-#include <com/sun/star/accessibility/XAccessible.hpp>
-#include <com/sun/star/accessibility/XAccessibleText.hpp>
-#include <com/sun/star/accessibility/XAccessibleValue.hpp>
-#include <com/sun/star/accessibility/XAccessibleEditableText.hpp>
-#include <com/sun/star/awt/XSpinField.hpp>
-#include <com/sun/star/sheet/XSpreadsheetDocument.hpp>
-#include <com/sun/star/ui/XUIConfigurationManager.hpp>
 #include <com/sun/star/frame/XLoaderFactory.hpp>
 #include <com/sun/star/text/XTextTable.hpp>
 #include <com/sun/star/table/XCell.hpp>
@@ -437,7 +425,7 @@ void SAL_CALL BaseDispatch::dispatch( const URL& aURL, const Sequence < Property
 
             fill_cell_string(table, *(i++), "Letter");
             fill_cell_string(table, *(i++), "Value");
-            
+
             auto val = stats.begin();
 
             bool contains_bad = (stats.find(L'ё') != stats.end());
@@ -445,7 +433,7 @@ void SAL_CALL BaseDispatch::dispatch( const URL& aURL, const Sequence < Property
 
             for (; i != cells.end(); i++)
             {
-                if (contains_bad && (val->first > L'е'))
+                if (contains_bad && (val->first > L'е') && (val->first != L'ё'))
                 {
                     bad_num = extract_pos_num(*(i++));
                     contains_bad = false;
