@@ -47,12 +47,24 @@ for file_name in parallel_names:
             parallel_time.loc[i, "jobs"] = int(nums[0])
             parallel_time.loc[i, "threads"] = int(nums[1])
             parallel_time.loc[i, "time"] = time
+            parallel_time.loc[i, "mean"] = times.mean()
             i += 1
     #i += 1
+val = parallel_time[parallel_time.threads==2.0].loc[:,"mean"].iloc[0]
+parallel_time["acceleration"] = val/parallel_time['time']
+
 par_proc = sns.lineplot(data=parallel_time, x="threads", y="time", hue="jobs")
 plt.savefig('plots/time_threads.png', bbox_inches='tight')
 plt.show()
 
 par_jobs = sns.lineplot(data=parallel_time, x="jobs", y="time", hue="threads")
 plt.savefig('plots/par_time_jobs.png', bbox_inches='tight')
+plt.show()
+
+acc_jobs = sns.lineplot(data=parallel_time, x="jobs", y="acceleration", hue="threads")
+plt.savefig('plots/acc_jobs.png', bbox_inches='tight')
+plt.show()
+
+acc_threads = sns.lineplot(data=parallel_time, x="threads", y="acceleration", hue="jobs")
+plt.savefig('plots/acc_threads.png', bbox_inches='tight')
 plt.show()
