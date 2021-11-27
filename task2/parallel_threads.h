@@ -18,6 +18,8 @@ class all_threads
     std::string proc_name = "5_procs_100.txt";
     solution best_solut;
 
+    improved_solution best_impr;
+
     std::atomic<bool> generated = true, transforming = false, exchanging = false;
 
 public:

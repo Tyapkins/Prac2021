@@ -13,6 +13,9 @@ class thread_schedule
     done_list jobs_done;
     std::size_t best_loss = INTMAX_MAX;
     solution best_sol;
+    improved_solution improved_best;
+
+    bool tried_all = false;
 
     double Temp = 1000;
 
@@ -25,6 +28,8 @@ public:
 
     bool operation_1(std::size_t job_num, std::size_t new_proc_num);
     bool operation_2(std::size_t job_num);
+
+    bool is_all_tried() {return tried_all;}
 
     solution get_jobs_to_procs();
     job_set get_chain_dep(std::size_t num);
@@ -42,6 +47,10 @@ public:
 
     solution get_best() {return best_sol;}
     void set_best(solution sol) {best_sol = std::move(sol);}
+
+    improved_solution get_improved() {return improved_best;}
+    void set_improved(improved_solution impr_sol) {improved_best = std::move(impr_sol);}
+    improved_solution get_improved_config();
 
     std::shared_ptr<Job> get_job_by_num(std::size_t num);
     bool can_be_done(std::size_t num);

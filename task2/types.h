@@ -35,6 +35,9 @@ typedef std::map<std::size_t, job_set> conditions;
 typedef std::set<jobDeque> solution;
 typedef std::pair<solution, std::size_t> loss_and_sol;
 
+typedef std::pair<jobDeque, num> proc_and_end;
+typedef std::set<proc_and_end> improved_solution;
+
 
 const std::string PROC_PATH = "procs/";
 const std::string JOB_PATH = "jobs/";

@@ -7,6 +7,7 @@
 class Processor
 {
     std::size_t number = 0;
+    num stop_time = 0;
     jobDeque job_nums;
 
 public:
@@ -20,6 +21,9 @@ public:
 
     void remove_job(std::size_t job_num);
     void add_job(std::size_t job_num, std::size_t pos);
+
+    void set_stop_time(num time_stop) {stop_time = time_stop;}
+    num get_stop_time() {return stop_time;}
 
     void set_job_order(const jobDeque& order) {
         clear_jobs();

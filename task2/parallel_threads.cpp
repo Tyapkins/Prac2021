@@ -78,7 +78,8 @@ solution all_threads::hard_change(std::shared_ptr<run_thread> thr_obj)
     {
         thr_obj->transform_solution();
         old_config = thr_obj->get_config();
-        set_sol = get_all_solution();
+        if (thr_obj->is_all_tried())
+            break;
     }
     add_to_solutions(old_config);
     return old_config;
@@ -201,23 +202,30 @@ loss_and_sol all_threads::exchange_solutions()
     //std::cout << "Iterated all!" << std::endl;
     loss_and_sol best_sol;
     best_sol.second = INTMAX_MAX;
+
+    improved_solution sol_with_time;
+
     for (const auto& obj : par_threads) {
         auto cur_loss = obj->get_best_loss();
         if (cur_loss < best_sol.second)
         {
             best_sol.first = obj->get_best();
             best_sol.second = cur_loss;
+            sol_with_time = obj->get_improved_config();
         }
     }
 
     best_solut = best_sol.first;
     best_lose = best_sol.second;
 
+    best_impr = sol_with_time;
+
     //std::cout << "FIRST CYCLE d IS DONE" << std::endl;
     for (const auto& obj : par_threads) {
         obj->set_config(best_sol.first);
         obj->set_best(best_sol.first);
         obj->set_loss(best_sol.second);
+        obj->set_improved(best_impr);
         unpause_job(obj->get_num());
     }
 
@@ -228,7 +236,7 @@ loss_and_sol all_threads::exchange_solutions()
 
 void all_threads::check_coherent(interval node_num, interval proc_num, num iter_num, num node_diff, num proc_diff)
 {
-    std::ofstream out_file;
+    std::ofstream out_file, best_solution;
     //out_file.open("coherent_res.txt", std::ios::out | std::ios::trunc);
     std::string prefix = "coherent_res/coherent_res_";
     for (num node_counter = node_num.first; node_counter < node_num.second+1; node_counter += node_diff)
@@ -247,13 +255,23 @@ void all_threads::check_coherent(interval node_num, interval proc_num, num iter_
             }
             out_file << std::endl << std::endl;
             out_file.close();
+            best_solution.open("best_coherent/best_sol_" + std::to_string(node_counter) + "_" + std::to_string(proc_counter) + ".txt");
+            for (const auto& set_with_time : best_impr)
+            {
+                best_solution << "[";
+                for (auto num : set_with_time.first)
+                    best_solution << num << " ";
+                best_solution << "] : " << set_with_time.second << std::endl;
+            }
+            best_solution << "Best loss is " << best_lose << std::endl;
+            best_solution.close();
         }
     }
 }
 
 void all_threads::check_parallel(interval node_num, const list_job& thread_nums, num iter_num, num node_diff, num proc_num)
 {
-    std::ofstream out_file;
+    std::ofstream out_file, best_solution;
     std::string prefix = "parallel_res/parallel_res_";
     //out_file.open("parallel_res.txt", std::ios::out | std::ios::trunc);
 
@@ -273,6 +291,16 @@ void all_threads::check_parallel(interval node_num, const list_job& thread_nums,
             }
             out_file << std::endl << std::endl;
             out_file.close();
+            best_solution.open("best_parallel/best_sol_" + std::to_string(node_counter) + "_" + std::to_string(thread_counter) + ".txt");
+            for (const auto& set_with_time : best_impr)
+            {
+                best_solution << "[";
+                for (auto num : set_with_time.first)
+                    best_solution << num << " ";
+                best_solution << "] : " << set_with_time.second << std::endl;
+            }
+            best_solution << "Best loss is " << best_lose << std::endl;
+            best_solution.close();
         }
     }
 }

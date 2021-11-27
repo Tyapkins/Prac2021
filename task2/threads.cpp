@@ -28,6 +28,14 @@ solution thread_schedule::get_config()
     return new_set;
 }
 
+improved_solution thread_schedule::get_improved_config()
+{
+    improved_solution new_set;
+    for (const auto& proc: procs)
+        new_set.insert(std::make_pair(proc->get_job_nums(), proc->get_stop_time()));
+    return new_set;
+}
+
 std::size_t thread_schedule::compute()
 {
     std::size_t lose = 0;
@@ -57,7 +65,7 @@ std::size_t thread_schedule::compute()
             proc_working.insert(std::make_pair(proc->get_num(), false));
         }
     }
-    //std::cout << "CYCLE CHECK" << std::endl;
+    num cur_time = 0;
     while (!(all_jobs_are_done()))
     {
         std::size_t min_dur = 0;
@@ -101,6 +109,7 @@ std::size_t thread_schedule::compute()
             else
                 lose += min_dur;
         }
+        cur_time += min_dur;
         for (const auto& proc : procs) {
             auto proc_num = proc->get_num();
             if ((proc_working[proc_num]) && (dur_jobs[proc_num] == 0))
@@ -112,9 +121,13 @@ std::size_t thread_schedule::compute()
                     proc->set_job_order(proc_list);
                     //proc->next_job();
                     dur_jobs[proc_num] = get_job_by_num(proc->get_job_nums().front())->get_durat();
+                    if (jobs_done[proc->get_job_nums().front()])
+                        proc->set_stop_time(cur_time);
                 }
-                else
+                else {
                     proc_working[proc->get_num()] = false;
+                    std::cout << "STOP TIME IS " << cur_time << std::endl;
+                }
             }
 
         }
@@ -127,6 +140,7 @@ std::size_t thread_schedule::compute()
                     proc_working[proc->get_num()] = false;
             }
         }
+        //std::cout << cur_time << " is time!" << std::endl;
     }
     return lose;
 }
@@ -389,11 +403,11 @@ solution thread_schedule::transform_solution()
     while ((!transformed) && (tried_jobs.size() != all_jobs.size())) {
         auto job_num = get_job(gen);
         //std::cout << "And what job is it? It is " << job_num << std::endl << std::endl;
-        char tried_all = 0;
+        char tried_ops = 0;
         tried_jobs.insert(job_num);
         op_num = get_op(gen);
         all_procs.clear();
-        while ((tried_all < 2) && (!transformed))
+        while ((tried_ops < 2) && (!transformed))
         {
             //std::cout << "Trying number " << op_num << ", Indicator = " << int(tried_all) << std::endl;
             if (op_num == 1) {
@@ -405,13 +419,13 @@ solution thread_schedule::transform_solution()
                 if (all_procs.size() != procs.size())
                     transformed = true;
                 else {
-                    tried_all++;
+                    tried_ops++;
                     op_num = 2;
                 }
             }
             else if (op_num == 2) {
                 if (!operation_2(job_num)) {
-                    tried_all++;
+                    tried_ops++;
                     op_num = 1;
                 }
                 else
@@ -420,6 +434,9 @@ solution thread_schedule::transform_solution()
         }
         //std::cout << "Iteration!!!" << std::endl;
     }
+
+    if (!transformed)
+        tried_all = true;
 
     /*if (!transformed) {
         std::cout << "Transformations can not be done! Stop iterating." << std::endl;
@@ -465,6 +482,7 @@ solution thread_schedule::iterate(std::size_t iteration_num)
     std::size_t loss;
 
     solution old_config;
+    improved_solution old_improved;
 
     for (std::size_t i = 0; i < iteration_num; i++)
     {
@@ -475,17 +493,23 @@ solution thread_schedule::iterate(std::size_t iteration_num)
         {
             set_loss(loss);
             set_best(get_config());
+            set_improved(get_improved_config());
         }
         else
         {
             auto num = res(gen);
             auto p = exp((double(best_loss)-loss)/Temp);
-            if (num < p)
+            if (num < p) {
                 set_config(get_config());
-            else
+                set_improved(get_improved_config());
+            }
+            else {
                 set_config(old_config);
+                set_improved(old_improved);
+            }
         }
         old_config = get_config();
+        old_improved = get_improved_config();
 
         transform_solution();
     }
@@ -511,6 +535,7 @@ solution thread_schedule::full_cycle(std::size_t cycle_num, std::size_t iteratio
         sol = iterate(iteration_num);
         temp_change(begin_temp, counter+1);
     }
+    tried_all = false;
     return sol;
 }
 

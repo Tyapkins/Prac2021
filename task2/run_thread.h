@@ -9,11 +9,10 @@ class run_thread
 {
     pthread_t id{};
     thread_schedule obj;
-    std::size_t cycle_num = 20, iter_num = 5, divisor = 5;
+    std::size_t cycle_num = 30, iter_num = 5, divisor = 5;
     std::size_t pos_num = 0;
     std::shared_ptr<std::thread> cur_thr;
-    //std::set<solution> config_done;
-    //jobList all_jobs;
+
 public:
 
     void initialize(const std::string& jobs_name, const std::string& proc_name);
@@ -34,13 +33,16 @@ public:
     void set_loss(std::size_t num) {obj.set_loss(num);}
     void set_best(solution best_sol) {obj.set_best(std::move(best_sol));}
     void set_config(const solution& sol) {obj.set_config(sol);}
+    void set_improved(improved_solution sol) {obj.set_improved(std::move(sol));}
     void set_num(const std::size_t p_num) {pos_num = p_num;}
     solution get_solution() {return obj.get_best();}
     solution get_config() {return obj.get_config();}
+    improved_solution get_improved_config() {return obj.get_improved_config();}
     std::size_t compute() {return obj.compute();}
     solution transform_solution() {return obj.transform_solution();}
     double temp_change(double begin_temp, std::size_t num) {return obj.temp_change(begin_temp, num);}
     double get_temp() {return obj.get_temp();}
+    bool is_all_tried() {return obj.is_all_tried();}
 
     void set_cycle_num(std::size_t cyc_num) {cycle_num=cyc_num;}
     void set_iter_num(std::size_t it_num) {iter_num=it_num;}
