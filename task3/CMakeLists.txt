@@ -12,14 +12,6 @@ find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(.)
-#if(NOT MSVC)
-#    set(PThreadLib -pthread)
-#endif()
-
-#include_directories(/usr/src/googletest/googletest/include/)
-#include_directories(/usr/src/gmock/include/)
-#include_directories(SYSTEM "${GMOCK_DIR}/include")
-#include_directories(SYSTEM "${GMOCK_DIR}/gtest/include")
 
 add_executable(task3
         types.h
@@ -44,5 +36,4 @@ add_executable(task3
         tests/test_creation.cpp
         tests/test_distance.cpp)
 
-#add_test(NAME creationTest COMMAND creation)
 target_link_libraries(task3 ${GTEST_LIBRARIES})
